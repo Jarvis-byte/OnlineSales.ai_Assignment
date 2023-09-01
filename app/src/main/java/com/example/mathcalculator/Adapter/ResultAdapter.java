@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import java.util.Objects;
-
+//Nothing
 public class ResultAdapter extends ListAdapter<ResultEntity, ResultViewHolder> {
     private final Context context;
 
