@@ -26,6 +26,14 @@ public class ResultViewModel extends AndroidViewModel {
             resultDao.insert(resultEntity);
         });
     }
+    public void deleteAllData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                resultDao.deleteAll();
+            }
+        }).start();
+    }
 
     public LiveData<List<ResultEntity>> getAllResults() {
         return allResults;

@@ -14,5 +14,9 @@ public interface ResultDao {
 
     @Query("SELECT * FROM result_table ORDER BY date DESC")
     LiveData<List<ResultEntity>> getAllResults();
+
+    @Query("DELETE FROM result_table")
+    void deleteAll();
+
 }
 

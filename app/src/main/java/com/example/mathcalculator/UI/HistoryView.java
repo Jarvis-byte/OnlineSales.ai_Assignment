@@ -1,4 +1,4 @@
-package com.example.mathcalculator;
+package com.example.mathcalculator.UI;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.example.mathcalculator.Adapter.ResultAdapter;
 import com.example.mathcalculator.DataBase.ResultEntity;
 import com.example.mathcalculator.Model.ResultViewModel;
+import com.example.mathcalculator.R;
 
 import java.util.List;
 

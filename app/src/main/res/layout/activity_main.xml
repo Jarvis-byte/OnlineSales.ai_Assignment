@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".UI.MainActivity">
 
     <EditText
         android:id="@+id/ExpressionSubmitBox"
@@ -37,5 +37,13 @@
         android:layout_marginTop="16dp"
         android:layout_marginRight="16dp"
         android:textSize="16dp" />
+    <Button
+        android:id="@+id/btn_history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:text="View History" />
 
 </LinearLayout>

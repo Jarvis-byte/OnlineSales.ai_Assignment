@@ -1,4 +1,4 @@
-package com.example.mathcalculator;
+package com.example.mathcalculator.UI;
 
 
 import android.annotation.SuppressLint;
@@ -22,6 +22,7 @@ import com.example.mathcalculator.DataBase.ResultEntity;
 import com.example.mathcalculator.HttpRequest.Methods;
 import com.example.mathcalculator.HttpRequest.RetrofitClient;
 import com.example.mathcalculator.Model.ResultViewModel;
+import com.example.mathcalculator.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = "JSON_Response";
     private String FAIL_TAG = "FAIL_TAG";
     private EditText ExpressionSubmitBox;
-    private Button btn_submit;
+    private Button btn_submit,btn_history;
     private TextView txt_test;
 
     private int currentIndex = 0;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         ExpressionSubmitBox = findViewById(R.id.ExpressionSubmitBox);
         btn_submit = findViewById(R.id.btn_submit);
         txt_test = findViewById(R.id.txt_test);
+        btn_history = findViewById(R.id.btn_history);
         // Initialize Room Database
         resultDatabase = Room.databaseBuilder(getApplicationContext(), ResultDatabase.class, "result_database").build();
         resultDao = resultDatabase.resultDao();
@@ -68,11 +70,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 txt_test.setText("");
-                Intent intent = new Intent(MainActivity.this, HistoryView.class);
-                startActivity(intent);
                 processEditTextContent();
 
 
+            }
+        });
+        btn_history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, HistoryView.class);
+                startActivity(intent);
             }
         });
 //        // Observe changes in the database and update the UI accordingly
@@ -133,12 +140,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void insertResultToDatabase(String expression, String result) {
         // Get the current date
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YYYY");
         String currentDate = sdf.format(Calendar.getInstance().getTime());
 
         // Insert the result into the Room Database
         ResultEntity resultEntity = new ResultEntity(currentDate, expression, result);
         resultViewModel.insert(resultEntity);
+//        ResultViewModel resultViewModel = new ResultViewModel(getApplication());
+//        resultViewModel.deleteAllData();
 
         // Continue fetching the next result
         fetchNextResult();

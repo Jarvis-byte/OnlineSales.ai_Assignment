@@ -36,7 +36,7 @@ public class ResultAdapter extends ListAdapter<ResultEntity, ResultViewHolder> {
     public void onBindViewHolder(@NonNull ResultViewHolder holder, int position) {
         ResultEntity resultEntity = getItem(position);
         holder.textViewDate.setText("Date: " + resultEntity.getDate());
-        holder.textViewArrayElement.setText("Array Element: " + resultEntity.getArrayElement());
+        holder.textViewArrayElement.setText("Expression : " + resultEntity.getArrayElement());
         holder.textViewResult.setText("Result: " + resultEntity.getResult());
     }
 
