@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="edit_hint">#825bc3</color>
+    <color name="impText">#2d2d68</color>
 </resources>

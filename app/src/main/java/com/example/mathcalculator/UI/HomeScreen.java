@@ -8,11 +8,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.room.Room;
 
@@ -33,11 +34,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class HomeScreen extends AppCompatActivity {
     private String TAG = "JSON_Response";
     private String FAIL_TAG = "FAIL_TAG";
     private EditText ExpressionSubmitBox;
-    private Button btn_submit,btn_history;
+    private ConstraintLayout btn_submit;
+
+    private ImageView btn_history;
     private TextView txt_test;
 
     private int currentIndex = 0;
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ResultDatabase resultDatabase;
     private ResultDao resultDao;
     private ResultViewModel resultViewModel;
+    private boolean first = false;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         btn_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txt_test.setText("");
+                txt_test.setText("Calculating Results ...");
                 processEditTextContent();
 
 
@@ -78,10 +82,29 @@ public class MainActivity extends AppCompatActivity {
         btn_history.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, HistoryView.class);
+                Intent intent = new Intent(HomeScreen.this, HistoryView.class);
+
                 startActivity(intent);
             }
         });
+        ExpressionSubmitBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Clear the hint text when the EditText is clicked
+                ExpressionSubmitBox.setHint("");
+            }
+        });
+
+        ExpressionSubmitBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    // Clear the hint text when the EditText gains focus
+                    ExpressionSubmitBox.setHint("");
+                }
+            }
+        });
+
 //        // Observe changes in the database and update the UI accordingly
 //        resultViewModel.getAllResults().observe(this, new Observer<List<ResultEntity>>() {
 //            @Override
@@ -106,12 +129,18 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         String result = response.body().string();
                         Log.d("API Response", "Result: " + result);
+                        if (first != true) {
+                            txt_test.setText("");
+                        }
+                        first = true;
+
                         displayResult(stringArray[currentIndex - 1], result);
 
                         // Fetch the next result after a delay (e.g., 1 second)
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
+
                                 fetchNextResult();
                             }
                         }, 1000); // Delay for 1 second before making the next API call
@@ -178,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayResult(String s, String result) {
         // Append the result to the TextView
-        txt_test.append(s + "=>" + result + "\n");
+        txt_test.append(s + " => " + result + "\n");
     }
 
 }
