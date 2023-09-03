@@ -23,12 +23,27 @@
                 android:id="@+id/btn_history"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_gravity="end"
                 android:layout_marginTop="32dp"
-                android:clickable="false"
+                android:clickable="true"
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
-                app:srcCompat="@drawable/menu_bar" />
+                app:srcCompat="@drawable/history_img_42" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_history"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="History"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <ScrollView
@@ -37,27 +52,41 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="50dp"
             android:layout_marginRight="16dp"
-            android:background="@drawable/background_txt">
+            android:background="@drawable/background_txt"
+            android:fillViewport="true">
 
             <TextView
                 android:id="@+id/txt_test"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+
                 android:padding="10dp"
                 android:text="Results"
                 android:textColor="@color/black"
-                android:textSize="16dp"
+                android:textSize="25sp"
                 android:textStyle="bold" />
 
         </ScrollView>
 
+        <ImageView
+            android:id="@+id/btn_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:paddingStart="32dp"
+            android:paddingEnd="21dp"
+
+            app:srcCompat="@drawable/clear_img" />
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:orientation="horizontal"
-
             android:weightSum="12">
 
             <View
@@ -71,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:text="Please Enter Expression"
+                android:text="Please Enter Expression(s)"
                 android:textAlignment="center"
                 android:textColor="#f66d5a"
                 android:textSize="20sp" />
@@ -92,7 +121,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="25dp"
             android:layout_marginRight="16dp"
             app:cardBackgroundColor="#ede7f8"
             app:cardCornerRadius="10dp"
@@ -101,6 +130,7 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+
                 android:fillViewport="true">
 
                 <EditText
@@ -108,9 +138,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/background_edt"
-                    android:hint="4+3"
+                    android:hint="Enter Expression Here"
                     android:maxLines="5"
                     android:padding="10dp"
+
                     android:textColor="@color/edit_hint"
                     android:textColorHint="@color/edit_hint"
                     android:textSize="30sp" />

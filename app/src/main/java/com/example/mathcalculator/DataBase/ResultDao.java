@@ -18,5 +18,8 @@ public interface ResultDao {
     @Query("DELETE FROM result_table")
     void deleteAll();
 
+    @Query("SELECT COUNT(*) FROM result_table")
+    int getCount();
+
 }
 

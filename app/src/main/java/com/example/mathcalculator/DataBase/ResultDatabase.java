@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 @Database(entities = {ResultEntity.class}, version = 1, exportSchema = false)
 public abstract class ResultDatabase extends RoomDatabase {
+
     private static ResultDatabase instance;
 
     public abstract ResultDao resultDao();

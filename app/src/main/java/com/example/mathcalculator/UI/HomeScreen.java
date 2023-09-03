@@ -3,9 +3,11 @@ package com.example.mathcalculator.UI;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -26,8 +28,13 @@ import com.example.mathcalculator.Model.ResultViewModel;
 import com.example.mathcalculator.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -40,7 +47,7 @@ public class HomeScreen extends AppCompatActivity {
     private EditText ExpressionSubmitBox;
     private ConstraintLayout btn_submit;
 
-    private ImageView btn_history;
+    private ImageView btn_history, btn_clear;
     private TextView txt_test;
 
     private int currentIndex = 0;
@@ -51,6 +58,29 @@ public class HomeScreen extends AppCompatActivity {
     private ResultDao resultDao;
     private ResultViewModel resultViewModel;
     private boolean first = false;
+
+    public HomeScreen(
+            EditText expressionSubmitBox,
+            ConstraintLayout btnSubmit,
+            TextView txtTest,
+            ImageView btnHistory,
+            ImageView btnClear,
+            ResultDatabase resultDatabase,
+            ResultViewModel resultViewModel
+    ) {
+        ExpressionSubmitBox = expressionSubmitBox;
+        btn_submit = btnSubmit;
+        this.txt_test = txtTest;
+        btn_history = btnHistory;
+        this.btn_clear = btnClear;
+        this.resultDatabase = resultDatabase;
+        this.resultViewModel = resultViewModel;
+
+    }
+
+    public HomeScreen() {
+
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -63,6 +93,7 @@ public class HomeScreen extends AppCompatActivity {
         btn_submit = findViewById(R.id.btn_submit);
         txt_test = findViewById(R.id.txt_test);
         btn_history = findViewById(R.id.btn_history);
+        btn_clear = findViewById(R.id.btn_clear);
         // Initialize Room Database
         resultDatabase = Room.databaseBuilder(getApplicationContext(), ResultDatabase.class, "result_database").build();
         resultDao = resultDatabase.resultDao();
@@ -73,8 +104,32 @@ public class HomeScreen extends AppCompatActivity {
         btn_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txt_test.setText("Calculating Results ...");
-                processEditTextContent();
+                // Get the text from the EditText
+                String editTextContent = ExpressionSubmitBox.getText().toString().trim();
+
+                // Check if the EditText is empty
+                if (TextUtils.isEmpty(editTextContent)) {
+                    // Show an error message in the EditText
+                    ExpressionSubmitBox.setError("Field cannot be empty");
+                    ExpressionSubmitBox.requestFocus(); // Focus on the EditText
+                } else {
+                    if (isValidMathExpression(editTextContent)) {
+                        // Clear any previous error
+                        ExpressionSubmitBox.setError(null);
+
+                        // Set the text while calculating results
+                        txt_test.setText("Calculating Results ...");
+
+                        // Call the function to process the EditText content
+                        first = false;
+                        processEditTextContent();
+                    } else {
+                        ExpressionSubmitBox.setError("Not a Valid Expression");
+                        ExpressionSubmitBox.requestFocus();
+
+                    }
+
+                }
 
 
             }
@@ -104,6 +159,14 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
+        btn_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txt_test.setText("");
+                txt_test.setHint("Results");
+                txt_test.setHintTextColor(Color.parseColor("#000000"));
+            }
+        });
 
 //        // Observe changes in the database and update the UI accordingly
 //        resultViewModel.getAllResults().observe(this, new Observer<List<ResultEntity>>() {
@@ -115,11 +178,24 @@ public class HomeScreen extends AppCompatActivity {
 //        });
     }
 
+    public boolean isValidMathExpression(String input) {
+        // Define a regular expression pattern for a valid mathematical expression
+        String regex = "^[\\d+\\-*/()\\s]+$";
+
+        // Compile the regular expression
+        Pattern pattern = Pattern.compile(regex);
+
+        // Create a matcher with the input string
+        Matcher matcher = pattern.matcher(input);
+
+        // Check if the input matches the pattern
+        return matcher.matches();
+    }
+
     protected void fetchNextResult() {
         if (currentIndex < stringArray.length) {
             String expression = stringArray[currentIndex];
             currentIndex++;
-
 
             Methods methods = RetrofitClient.getRetrofitInstance().create(Methods.class);
             Call<ResponseBody> call = methods.getAllData(expression);
@@ -131,6 +207,7 @@ public class HomeScreen extends AppCompatActivity {
                         Log.d("API Response", "Result: " + result);
                         if (first != true) {
                             txt_test.setText("");
+                            Log.d("Boolean", "Boolean Value: " + first);
                         }
                         first = true;
 
@@ -146,9 +223,13 @@ public class HomeScreen extends AppCompatActivity {
                         }, 1000); // Delay for 1 second before making the next API call
                         insertResultToDatabase(expression, result);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.e(TAG, e.toString());
                         // Handle exceptions
+                        e.printStackTrace();
+                        Log.e("Fail JSON", e.toString());
+                        // Remove the failed expression from the array
+//                        removeFailedExpression(expression);
+                        // Call the function for the next element
+                        fetchNextResult();
                     }
 
                 }
@@ -157,19 +238,30 @@ public class HomeScreen extends AppCompatActivity {
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(FAIL_TAG, String.valueOf(t.toString()));
                     // Handle API call failure
+                    if (first != true) {
+                        txt_test.setText("");
+                    }
+                    first = true;
                 }
             });
 
 
         } else {
+            if (first != true) {
+                txt_test.setText("");
+            }
+            first = true;
             // All results have been fetched
             // You can perform any final actions here
+
         }
     }
 
+
+
     private void insertResultToDatabase(String expression, String result) {
         // Get the current date
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YYYY ', Time :' hh:mmaa", Locale.ENGLISH);
         String currentDate = sdf.format(Calendar.getInstance().getTime());
 
         // Insert the result into the Room Database
@@ -207,6 +299,7 @@ public class HomeScreen extends AppCompatActivity {
 
     private void displayResult(String s, String result) {
         // Append the result to the TextView
+        Log.i("Result for text", result);
         txt_test.append(s + " => " + result + "\n");
     }
 
