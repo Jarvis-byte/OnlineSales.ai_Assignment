@@ -3,6 +3,7 @@ package com.example.mathcalculator.UI;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,11 +30,11 @@ public class HistoryView extends AppCompatActivity {
     private ResultAdapter adapter;
     private List<ResultEntity> resultList; // Add this line
 
-    private ImageView back, imageView;
+    private ImageView back, imageView, delete_history_button;
     private ResultDatabase resultDatabase;
     private ResultDao resultDao;
 
-    private TextView text_no_data;
+    private TextView text_no_data, txt_delete;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,6 +44,8 @@ public class HistoryView extends AppCompatActivity {
         back = findViewById(R.id.back);
         imageView = findViewById(R.id.imageView);
         text_no_data = findViewById(R.id.text_no_data);
+        delete_history_button = findViewById(R.id.delete_history_button);
+        txt_delete = findViewById(R.id.txt_delete);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -70,6 +73,38 @@ public class HistoryView extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        delete_history_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ResultViewModel resultViewModel = new ResultViewModel(getApplication());
+                resultViewModel.deleteAllData();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // This code will be executed after 1 second
+                        new DatabaseOperationTask().execute();
+                    }
+                }, 500);
+
+            }
+        });
+        txt_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ResultViewModel resultViewModel = new ResultViewModel(getApplication());
+                resultViewModel.deleteAllData();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // This code will be executed after 1 second
+                        new DatabaseOperationTask().execute();
+                    }
+                }, 500);
             }
         });
     }
