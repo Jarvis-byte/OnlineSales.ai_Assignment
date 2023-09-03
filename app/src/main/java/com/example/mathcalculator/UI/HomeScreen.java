@@ -28,8 +28,6 @@ import com.example.mathcalculator.Model.ResultViewModel;
 import com.example.mathcalculator.R;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -58,6 +56,8 @@ public class HomeScreen extends AppCompatActivity {
     private ResultDao resultDao;
     private ResultViewModel resultViewModel;
     private boolean first = false;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
 
     public HomeScreen(
             EditText expressionSubmitBox,
@@ -178,21 +178,45 @@ public class HomeScreen extends AppCompatActivity {
 //        });
     }
 
+
     public boolean isValidMathExpression(String input) {
+        // Split the input into lines
+        String[] lines = input.split("\\r?\\n");
+
         // Define a regular expression pattern for a valid mathematical expression
-        String regex = "^[\\d+\\-*/()\\s]+$";
+        String regex = "^[\\d+\\-*/()^\\s]+|sqrt\\([^)]+\\)$";
 
         // Compile the regular expression
         Pattern pattern = Pattern.compile(regex);
 
-        // Create a matcher with the input string
-        Matcher matcher = pattern.matcher(input);
+        // Iterate through each line and check if it matches the pattern
+        for (String line : lines) {
+            Matcher matcher = pattern.matcher(line.trim());
+            if (!matcher.matches()) {
+                return false; // If any line is invalid, return false
+            }
+        }
 
-        // Check if the input matches the pattern
-        return matcher.matches();
+        return true; // All lines are valid expressions
     }
 
-    protected void fetchNextResult() {
+    // This method starts the process without recursion
+    private void startFetchingResults() {
+        while (currentIndex < stringArray.length) {
+            fetchNextResult();
+        }
+
+        // All results have been fetched
+        // You can perform any final actions here
+//        if (!first) {
+//
+//            txt_test.setText("");
+//        }
+//        first = true;
+    }
+
+    // This method fetches the next result
+    private void fetchNextResult() {
         if (currentIndex < stringArray.length) {
             String expression = stringArray[currentIndex];
             currentIndex++;
@@ -205,58 +229,52 @@ public class HomeScreen extends AppCompatActivity {
                     try {
                         String result = response.body().string();
                         Log.d("API Response", "Result: " + result);
-                        if (first != true) {
+                        if (!first) {
                             txt_test.setText("");
                             Log.d("Boolean", "Boolean Value: " + first);
                         }
                         first = true;
 
-                        displayResult(stringArray[currentIndex - 1], result);
+                        displayResult(expression, result);
+                        insertResultToDatabase(expression, result);
 
                         // Fetch the next result after a delay (e.g., 1 second)
-                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-
                                 fetchNextResult();
                             }
                         }, 1000); // Delay for 1 second before making the next API call
-                        insertResultToDatabase(expression, result);
                     } catch (Exception e) {
                         // Handle exceptions
                         e.printStackTrace();
                         Log.e("Fail JSON", e.toString());
                         // Remove the failed expression from the array
-//                        removeFailedExpression(expression);
+                        // removeFailedExpression(expression);
                         // Call the function for the next element
+                        if (!first) {
+                            txt_test.setText("");
+                            Log.d("Boolean", "Boolean Value: " + first);
+                        }
+                        first = true;
+                        displayResult(expression, null);
                         fetchNextResult();
                     }
-
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     Log.e(FAIL_TAG, String.valueOf(t.toString()));
                     // Handle API call failure
-                    if (first != true) {
+                    if (!first) {
                         txt_test.setText("");
                     }
                     first = true;
+
                 }
             });
-
-
-        } else {
-            if (first != true) {
-                txt_test.setText("");
-            }
-            first = true;
-            // All results have been fetched
-            // You can perform any final actions here
-
         }
     }
-
 
 
     private void insertResultToDatabase(String expression, String result) {
@@ -271,7 +289,7 @@ public class HomeScreen extends AppCompatActivity {
 //        resultViewModel.deleteAllData();
 
         // Continue fetching the next result
-        fetchNextResult();
+        startFetchingResults();
     }
 
     private void processEditTextContent() {
@@ -281,9 +299,8 @@ public class HomeScreen extends AppCompatActivity {
         System.arraycopy(lines, 0, stringArray, 0, lines.length);
         ExpressionSubmitBox.setText(""); // Clear the EditText
         currentIndex = 0; // Reset the index
-
         // Start fetching results
-        fetchNextResult();
+        startFetchingResults();
     }
 
     private void updateResultTextView(List<ResultEntity> resultEntities) {
@@ -299,8 +316,20 @@ public class HomeScreen extends AppCompatActivity {
 
     private void displayResult(String s, String result) {
         // Append the result to the TextView
-        Log.i("Result for text", result);
-        txt_test.append(s + " => " + result + "\n");
+        if (result != null) {
+            if (!result.isEmpty()) {
+                // Append the result to the TextView for successful HTTP requests
+                Log.i("Expression in print", s + " => " + result + "\n");
+                txt_test.append(s + " => " + result + "\n");
+            } else {
+                Log.i("Else Part in empty", "It is in else");
+                txt_test.append(s + " => " + "Wrong Expression" + "\n");
+            }
+        } else {
+            Log.i("Else Part", "It is in else");
+            txt_test.append(s + " => " + "Wrong Expression" + "\n");
+        }
+
     }
 
 }
