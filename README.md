@@ -2,6 +2,8 @@
 This project is a part of Assignment provided by OnlineSales.ai
 I am pleased to announce the development of my new mathematical expression calculation app, built entirely in Java. This app offers users a seamless experience for solving mathematical expressions using a free REST API, making complex calculations easier than ever.
 
+![Image Alt Text](IMG_0428.jpg)
+
 **Key Features:**
 - **Mathematical Expression Calculation:** The app allows users to input mathematical expressions and swiftly calculates the results using a free REST API, ensuring accurate and quick solutions.
 
