@@ -29,8 +29,10 @@ import com.example.mathcalculator.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +60,7 @@ public class HomeScreen extends AppCompatActivity {
     private boolean first = false;
     private Handler handler = new Handler(Looper.getMainLooper());
 
+    private HashMap<Integer, String> storeResult;
 
     public HomeScreen(
             EditText expressionSubmitBox,
@@ -200,25 +203,20 @@ public class HomeScreen extends AppCompatActivity {
         return true; // All lines are valid expressions
     }
 
-    // This method starts the process without recursion
+
     private void startFetchingResults() {
         while (currentIndex < stringArray.length) {
             fetchNextResult();
         }
 
-        // All results have been fetched
-        // You can perform any final actions here
-//        if (!first) {
-//
-//            txt_test.setText("");
-//        }
-//        first = true;
+
     }
 
     // This method fetches the next result
     private void fetchNextResult() {
         if (currentIndex < stringArray.length) {
             String expression = stringArray[currentIndex];
+            System.out.println(currentIndex + "->" + expression);
             currentIndex++;
 
             Methods methods = RetrofitClient.getRetrofitInstance().create(Methods.class);
@@ -238,19 +236,13 @@ public class HomeScreen extends AppCompatActivity {
                         displayResult(expression, result);
                         insertResultToDatabase(expression, result);
 
-                        // Fetch the next result after a delay (e.g., 1 second)
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                fetchNextResult();
-                            }
-                        }, 1000); // Delay for 1 second before making the next API call
+
                     } catch (Exception e) {
                         // Handle exceptions
                         e.printStackTrace();
                         Log.e("Fail JSON", e.toString());
                         // Remove the failed expression from the array
-                        // removeFailedExpression(expression);
+
                         // Call the function for the next element
                         if (!first) {
                             txt_test.setText("");
@@ -258,7 +250,7 @@ public class HomeScreen extends AppCompatActivity {
                         }
                         first = true;
                         displayResult(expression, null);
-                        fetchNextResult();
+
                     }
                 }
 
@@ -316,10 +308,11 @@ public class HomeScreen extends AppCompatActivity {
 
     private void displayResult(String s, String result) {
         // Append the result to the TextView
+        System.out.println(s + "->" + result);
         if (result != null) {
             if (!result.isEmpty()) {
                 // Append the result to the TextView for successful HTTP requests
-                Log.i("Expression in print", s + " => " + result + "\n");
+//                Log.i("Expression in print", s + " => " + result + "\n");
                 txt_test.append(s + " => " + result + "\n");
             } else {
                 Log.i("Else Part in empty", "It is in else");
